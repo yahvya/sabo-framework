@@ -13,14 +13,6 @@ to start a project with
   sudo rm -r .git 
   
   git init
-  
-  composer install
-  
-  cd bin
-  
-  composer install
-  
-  cd ../
 
 SABO
 

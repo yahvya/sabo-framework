@@ -1,0 +1,27 @@
+<?php
+
+namespace Model\Model;
+
+use \Model\Attribute\TableName;
+use \Model\Attribute\TableColumn;
+
+use \Model\Cond\ColumnCond;
+use \Model\Cond\RegexCond;
+
+#[TableName("{table_name}")]
+class {model_name} extends AbstractModel
+{
+	// table columns attribute have to be protected
+	#[TableColumn("id","int",TableColumn::PRIMARY_KEY,TableColumn::AUTO_INCREMENT)]
+	protected int $id;
+
+	protected static function get_object_from_row(array $row):self
+	{
+		${table_name}_model = new {model_name}();
+
+		${table_name}_model->id = $row["id"];
+
+		return ${table_name}_model;
+	}
+}
+

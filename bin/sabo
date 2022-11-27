@@ -1,0 +1,21 @@
+<?php
+
+require_once(__DIR__ . '/vendor/autoload.php');
+
+use \Sabo\AbstractCommand;
+use \Sabo\ControllerMaker;
+use \Sabo\ModelMaker;
+use \Sabo\RouteExporter;
+use \Sabo\ServerStarter;
+
+// add commands
+AbstractCommand::add_command("make:controller",ControllerMaker::class,"Permet de créer un controller");
+AbstractCommand::add_command("make:model",ModelMaker::class,"Permet de créer un model");
+AbstractCommand::add_command("export:routes",RouteExporter::class,"Permet d'exporter les routes (config/routes.php) sous format json");
+AbstractCommand::add_command("start:server",ServerStarter::class,"Permet de lancer le serveur de développement");
+// add your commands here
+
+
+// try to exec command
+AbstractCommand::find_and_exec_command($argc,$argv,__DIR__ . '/..');
+

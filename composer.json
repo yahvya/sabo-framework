@@ -1,0 +1,21 @@
+{
+	"autoload" : 
+	{
+		"psr-4" : 
+		{
+			"Sabo\\Sabo\\" : "sabo\\sabo",
+			"Sabo\\Helper\\" : "sabo\\helpers",
+			"Sabo\\Interface\\" : "sabo\\interfaces",
+			"Sabo\\Custom\\" : "sabo\\custom",
+			"Controller\\Controller\\" : "src\\controller\\controller",
+			"Model\\Model\\" : "src\\model\\model",
+			"Model\\Attribute\\" : "src\\model\\attributes",
+			"Model\\Interface\\" : "src\\model\\interfaces",
+			"Model\\Cond\\" : "src\\model\\conds",
+			"Model\\Exception\\" : "src\\model\\exceptions"
+		}
+	},
+	"require": {
+		"twig/twig": "^3.4"
+	}
+}

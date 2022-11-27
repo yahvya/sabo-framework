@@ -2,7 +2,13 @@
 
 mini php framework require php 8
 
-git clone https://github.com/yahvya/sabo-framework
+to start a project with
+
+mkdir my_project
+
+cd my_project
+
+git clone https://github.com/yahvya/sabo-framework .
 
 SABO
 

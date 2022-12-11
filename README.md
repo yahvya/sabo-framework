@@ -34,7 +34,7 @@ you can customize the make:controller controller format by updating bin/resource
  
 Views
 
-- views are provided with twig and are locates in views/templates/
+- views are provided with twig and are locates in views/templates|layouts
 
 - to move this folder you have to redefine $this->view_start_path in your controller or directly in abstract controller
 
@@ -68,8 +68,9 @@ if you redefine the construct -> __construct($routes_names,$debug_mode) be sure 
 
 render to render your view (you can past data to twig with the second optionnal parameter)
 
-redirect with take a route to redirect (can be combine with routes to get a route -> $this->redirect($this->route("route_name")); )
+redirect take a route to redirect (can be combine with routes to get a route -> $this->redirect($this->route("route_name")); )
 
+get|set_flash_data allow to use flash datas which will be disapear after a redirection
 
 Models
 
@@ -83,40 +84,52 @@ a model have to
   
   - use the TableName attribute to define the linked table name in database (already do if you use sabo)
   
-  - implements the abstract method get_object_from_row which have to return this model instance with a row from database
+  - implements the abstract method get_object_from_row which have to return this model instance from a database given row
   
 a model property have to
 
   - use the TableColumn attribute if linked to the table column and be public/protected to describe the column
   - to put conditions when a linked property is going to be set, use the attribute ColumnCond (RegexCond is available but you can create your own Cond by implementing the CondInterface)
   
-  Env file 
+Model Conds
+
+- the project arrive with defaults conds located in src/model/conds , conds are class instances which will be called when an property with the ColumnCond attribute try to be set to verify the data validity before
+
+- use can define your own conds by implementing the CondInterface
+
+Env file 
+
+the env file have to 
+
+  - be .env or a env.json located in config folder
+
+  - contain the maintenance state of the site (maintenance=true)
+  - database datas
   
-  the env file have to 
-  
-    - be .env or a env.json located in config folder
-  
-    - contain the maintenance state of the site (maintenance=true)
-    - database datas
-    
- the default configuration use env.json
- 
- to use .env modify in index.php
- 
- define("CONFIG_FILE_TYPE",Router::JSON_ENV) to define("CONFIG_FILE_TYPE",Router::CLASSIC_ENV);
- 
- Serialize models
- 
- to serialize a model you have to use $model->get_serialized_version(); which will return the serialized version of your model after erasing unserializable elements (for example PDO and the columns you mark to erase before with serialize with the TableColumn attribute), your base model object will not change after 
- 
- to unserialize a model use the static method AbstractModel::unserialize_model you can add an array to replace some erased values ["class_property_name" => "value_to_set"]
- 
- Include private js
- 
- via .htaccess, js files which are located in views/templates/*/administrator/.js are not accessible with url
- 
- to include these js files in your view you have to set the third optionnal parameter of asset function to true -> {{ asset("js","your_js_file",true) }}  
- 
- 
- 
- 
+the default configuration use env.json
+
+to use .env modify in index.php
+
+define("CONFIG_FILE_TYPE",Router::JSON_ENV) to define("CONFIG_FILE_TYPE",Router::CLASSIC_ENV);
+
+Serialize models
+
+to serialize a model you have to use $model->get_serialized_version(); which will return the serialized version of your model after erasing unserializable elements (for example PDO and the columns you mark to erase before with serialize with the TableColumn attribute), your base model object will not change after 
+
+to unserialize a model use the static method AbstractModel::unserialize_model you can add an array to replace some erased values ["class_property_name" => "value_to_set"]
+
+Mailer 
+
+- the project come with a mailer class located in Sabo\Sabo\Mailer
+- your ids will be taken in the env configuration 
+- follow the constructor comments to learn how to send a mail
+
+Include private js
+
+via .htaccess, js files which are located in views/templates/*/administrator/.js are not accessible with url
+
+to include these js files in your view you have to set the third optionnal parameter of asset function to true -> {{ asset("js","your_js_file",true) }}  
+
+
+
+

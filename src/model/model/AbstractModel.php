@@ -132,7 +132,7 @@ abstract class AbstractModel
 		conds format -> [property => value] if cond if empty it will select * | keys will not be verifed
 		cannot return object if the fetch mode is set
 	*/
-	public static function find(array $conditions = [],bool $return_objects = true,string $order_by = "",bool $just_one = false,bool $use_like = false,?int $fetch_mode = NULL):array
+	public static function find(array $conditions = [],bool $return_objects = true,string $order_by = "",bool $just_one = false,bool $use_regexp = false,?int $fetch_mode = NULL):array
 	{
 		$class = get_called_class();
 
@@ -153,10 +153,13 @@ abstract class AbstractModel
 
 				foreach($conditions as $property_name => $condition_value)
 				{
-					if($use_like)
-						array_push($conds,"{$model_instance->properties_data[$property_name]["linked_col_name"]} LIKE :{$property_name}");
+					if($use_regexp)
+						array_push($conds,"{$model_instance->properties_data[$property_name]["linked_col_name"]} REGEXP :{$property_name}");
 					else
 						array_push($conds,"{$model_instance->properties_data[$property_name]["linked_col_name"]}=:{$property_name}");
+
+					if(!empty($model_instance->properties_data[$property_name] ) && $model_instance->properties_data[$property_name]["can_be_hashed"])
+						$condition_value = self::hash_model_hashable($condition_value);
 
 					$to_bind[":{$property_name}"] = $condition_value;
 				}
@@ -176,13 +179,28 @@ abstract class AbstractModel
 			if($query != false && $query->execute($to_bind) )
 			{
 				if($fetch_mode == NULL)
+					$result = $query->fetchAll();
+				else 
+					$result = $query->fetchAll($fetch_mode);
+
+				// unshash hashed datas
+
+				foreach($result as $key => $row_data)
 				{
-					if($return_objects)
-						$result = array_map(fn(array $row_data):AbstractModel => $class::get_object_from_row($row_data),$query->fetchAll() );
-					else 
-						$result = $query->fetchAll();
+					foreach($model_instance->properties_data as $property_data)
+					{
+						if(!empty($row_data[$property_data["linked_col_name"] ]) && $property_data["can_be_hashed"])
+							$result[$key][$property_data["linked_col_name"] ] = self::unhash_model_hashable($row_data[$property_data["linked_col_name"] ]);
+					}
 				}
-				else $result = $query->fetchAll($fetch_mode);
+
+				if($return_objects)
+				{
+					$result = array_map(
+						fn(array $row_data):AbstractModel => $class::get_object_from_row($row_data),
+						$result
+					);
+				}
 			}
 		}
 		catch(PDOException $e)
@@ -213,6 +231,20 @@ abstract class AbstractModel
 		}
 
 		return NULL;
+	}
+
+	public static function hash_model_hashable(string $data):string
+	{
+		// website hash
+
+		return $data;
+	}
+
+	public static function unhash_model_hashable(string $data):string
+	{
+		// website unhash
+
+		return $data;
 	}
 
 	// throw exception if the model is badly formed
@@ -290,7 +322,7 @@ abstract class AbstractModel
 	}
 
 	// throw a ModelException is failed to set
-	public function set_column(string $attribute_name,mixed $data):self
+	public function set_attribute(string $attribute_name,mixed $data):self
 	{
 		$check_result = $this->data_is_valid_for_attribute($attribute_name,$data);
 
@@ -308,9 +340,9 @@ abstract class AbstractModel
 	}
 
 	// return null if attribute not found or empty
-	public function get_column(string $attribute_name):mixed
+	public function get_attribute(string $attribute_name):mixed
 	{
-		if(!empty($this->properties_data[$attribute_name]) && !empty($this->$attribute_name) )
+		if(!empty($this->properties_data[$attribute_name]) && isset($this->$attribute_name) )
 			return $this->$attribute_name;
 
 		return NULL;
@@ -354,12 +386,12 @@ abstract class AbstractModel
 				continue;
 
 			// if the property is not initialized
-			if(!isset($this->$property_name) )
+			if(!isset($this->$property_name) && !is_null($this->$property_name) )
 				return false;
 
 			array_push($to_insert,$property_data["linked_col_name"]);
 			array_push($markers,":{$property_data["linked_col_name"]}");
-			$to_bind[":{$property_data["linked_col_name"]}"] = $this->$property_name;
+			$to_bind[":{$property_data["linked_col_name"]}"] = $property_data["can_be_hashed"] ? self::hash_model_hashable($this->$property_name) : $this->$property_name;
 		}
 
 		$to_insert = implode(",",$to_insert);
@@ -433,11 +465,14 @@ abstract class AbstractModel
 				if($property_data["is_primary"])
 				{
 					array_push($conds,"{$this->properties_data[$property_name]["linked_col_name"]}=:primary_{$property_name}");
-					$to_bind[":primary_{$property_name}"] = $this->$property_name;
+					$to_bind[":primary_{$property_name}"] = $property_data["can_be_hashed"] ? self::hash_model_hashable($this->$property_name) : $this->$property_name;
 				}
 
 				array_push($to_set,"{$this->properties_data[$property_name]["linked_col_name"]}=:{$property_name}");
-				$to_bind[":{$property_name}"] = $this->$property_name;
+				$to_bind[":{$property_name}"] = $property_data["can_be_hashed"] ? self::hash_model_hashable($this->$property_name) : $this->$property_name;
+
+				if(gettype($to_bind[":{$property_name}"]) == "boolean")
+					$to_bind[":{$property_name}"] = $to_bind[":{$property_name}"] === false ? 0 : 1;
 			}
 
 			if(empty($to_set) || empty($conds) )
@@ -445,7 +480,7 @@ abstract class AbstractModel
 
 			$to_set = implode(",",$to_set);
 			$conds = implode(" and ",$conds);
-
+			
 			$query = $this->con->prepare("update $this->table_name set $to_set where $conds");
 
 			return $query != false && $query->execute($to_bind);

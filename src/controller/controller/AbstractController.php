@@ -12,6 +12,7 @@ use \Twig\Environment;
 abstract class AbstractController
 {
 	protected string $view_start_path = ROOT . "views/templates/";
+	protected string $layouts_start_path = ROOT . "views/layouts/";
 
 	protected string $cache_path = ROOT . "views/cache/";
 
@@ -26,6 +27,7 @@ abstract class AbstractController
 	public function __construct(array $routes_names,bool $debug_mode)
 	{
 		$this->twig_loader = new FilesystemLoader($this->view_start_path);
+		$this->twig_loader->addPath($this->layouts_start_path);
 		$this->twig_environment = new Environment($this->twig_loader,[
             'debug' => $debug_mode,
             'charset' => 'UTF-8',
@@ -35,6 +37,8 @@ abstract class AbstractController
         $this->route_custom_extension = new RouteCustomExtensions($routes_names,$debug_mode);
         $this->twig_environment->addExtension($this->route_custom_extension);
         $this->debug_mode = $debug_mode;
+
+        $this->manage_flash_datas();
 	}	
 
 	protected function render(string $file,array $view_data = []):void
@@ -47,6 +51,8 @@ abstract class AbstractController
 			$dirpath .= "/";
 
 		$this->twig_environment->addExtension(new AssetCustomExtension($dirpath,$this->debug_mode) );
+
+		$view_data["appname"] = $_ENV["appname"];
 
 		die($this->twig_environment->render($file,$view_data));
 	}
@@ -79,5 +85,35 @@ abstract class AbstractController
 	protected function get_route_custom_extension():RouteCustomExtensions
 	{
 		return $this->route_custom_extension;
+	}
+
+	protected function set_flash_data(string $key,mixed $data):self
+	{
+		$_SESSION["controller_data"]["flash_messages"][$key] = [
+			"counter" => 0,
+			"data" => $data
+		];
+
+		return $this;
+	}
+
+	// return the flash data or null if not exist
+	protected function get_flash_data(string $key):mixed
+	{
+		return isset($_SESSION["controller_data"]["flash_messages"][$key]) ? $_SESSION["controller_data"]["flash_messages"][$key]["data"] : NULL;
+	}
+
+	private function manage_flash_datas():void
+	{
+		if(empty($_SESSION["controller_data"]["flash_messages"]) )
+			return;
+		
+		foreach($_SESSION["controller_data"]["flash_messages"] as $key => $flash_data)
+		{
+			if($flash_data["counter"] == 1)
+				unset($_SESSION["controller_data"]["flash_messages"][$key]);
+			else
+				$_SESSION["controller_data"]["flash_messages"][$key]["counter"]++;
+		}
 	}
 }

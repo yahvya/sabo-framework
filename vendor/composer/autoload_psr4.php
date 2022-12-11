@@ -18,5 +18,7 @@ return array(
     'Model\\Exception\\' => array($baseDir . '/src/model/exceptions'),
     'Model\\Cond\\' => array($baseDir . '/src/model/conds'),
     'Model\\Attribute\\' => array($baseDir . '/src/model/attributes'),
+    'Middleware\\Middleware\\' => array($baseDir . '/src/middleware/middleware'),
+    'Middleware\\Exception\\' => array($baseDir . '/src/middleware/exceptions'),
     'Controller\\Controller\\' => array($baseDir . '/src/controller/controller'),
 );

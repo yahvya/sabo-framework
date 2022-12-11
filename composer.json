@@ -12,10 +12,13 @@
 			"Model\\Attribute\\" : "src\\model\\attributes",
 			"Model\\Interface\\" : "src\\model\\interfaces",
 			"Model\\Cond\\" : "src\\model\\conds",
-			"Model\\Exception\\" : "src\\model\\exceptions"
+			"Model\\Exception\\" : "src\\model\\exceptions",
+			"Middleware\\Middleware\\" : "src\\middleware\\middleware",
+			"Middleware\\Exception\\" : "src\\middleware\\exceptions"
 		}
 	},
 	"require": {
-		"twig/twig": "^3.4"
+		"twig/twig": "^3.4",
+		"phpmailer/phpmailer": "^6.6"
 	}
 }

@@ -13,6 +13,8 @@ to start a project with
   sudo rm -r .git 
   
   git init
+  
+ to use mailer if an error occured try composer require phpmailer/phpmailer
 
 SABO
 

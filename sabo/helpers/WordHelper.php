@@ -9,13 +9,13 @@ abstract class WordHelper
 		$false_matches = ["false","False","FALSE",false];
 		$true_matches = ["true","True","TRUE",true];
 
-		if(in_array($to_match,$false_matches) )
+		if(in_array($to_match,$false_matches,true) )
 		{
 			$to_match = false;
 
 			return true;
 		}
-		elseif(in_array($to_match,$true_matches) )
+		elseif(in_array($to_match,$true_matches,true) )
 		{
 			$to_match = true;
 

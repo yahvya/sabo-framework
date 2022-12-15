@@ -24,21 +24,22 @@ abstract class AbstractController
 
 	private RouteCustomExtensions $route_custom_extension;
 
-	public function __construct(array $routes_names,bool $debug_mode)
+	public function __construct(array $routes_names,bool $debug_mode,bool $from_router = true)
 	{
 		$this->twig_loader = new FilesystemLoader($this->view_start_path);
 		$this->twig_loader->addPath($this->layouts_start_path);
 		$this->twig_environment = new Environment($this->twig_loader,[
-            'debug' => $debug_mode,
-            'charset' => 'UTF-8',
-            'autoescape' => 'html',
-            'cache' => $debug_mode ? false : $this->cache_path
+            "debug" => $debug_mode,
+            "charset" => "UTF-8",
+            "autoescape" => "html",
+            "cache" => $debug_mode ? false : $this->cache_path
         ]);     
         $this->route_custom_extension = new RouteCustomExtensions($routes_names,$debug_mode);
         $this->twig_environment->addExtension($this->route_custom_extension);
         $this->debug_mode = $debug_mode;
 
-        $this->manage_flash_datas();
+        if($from_router)
+        	$this->manage_flash_datas();
 	}	
 
 	protected function render(string $file,array $view_data = []):void

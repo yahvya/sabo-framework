@@ -233,14 +233,14 @@ abstract class AbstractModel
 		return NULL;
 	}
 
-	public static function hash_model_hashable(string $data):string
+	public static function hash_model_hashable(?string $data):?string
 	{
 		// website hash
 
 		return $data;
 	}
 
-	public static function unhash_model_hashable(string $data):string
+	public static function unhash_model_hashable(?string $data):?string
 	{
 		// website unhash
 
@@ -310,7 +310,7 @@ abstract class AbstractModel
 		{
 			if($this->properties_data[$attribute_name]["cond"] != NULL)
 			{
-				if($this->properties_data[$attribute_name]["cond"]->is_valid($data) || ($this->properties_data[$attribute_name]["is_primary"] && $data == NULL) )
+				if(($this->properties_data[$attribute_name]["is_nullable"] && empty($data) ) || $this->properties_data[$attribute_name]["cond"]->is_valid($data) )
 					return true;
 				else
 					return $this->properties_data[$attribute_name]["cond"]->get_error_message();

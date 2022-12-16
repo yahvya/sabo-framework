@@ -381,9 +381,9 @@ abstract class AbstractModel
 			if($property_data["is_primary"] && $property_data["is_auto_increment"])
 				continue;
 
-			// check if the property is not initialized and is nullable
-			if($property_data["is_nullable"] && (isset($this->$property_name) && $this->$property_name == NULL) )
-				continue;
+			// check if is initialized
+			if(!(new \ReflectionProperty($this,$property_name))->isInitialized($this) )
+					return false;
 
 			// if the property is not initialized
 			if(!isset($this->$property_name) && !is_null($this->$property_name) )
@@ -458,8 +458,8 @@ abstract class AbstractModel
 
 			foreach($this->properties_data as $property_name => $property_data)
 			{
-				// if the property is not initialized
-				if(!isset($this->$property_name) )
+				// check if is initialized
+				if(!(new \ReflectionProperty($this,$property_name))->isInitialized($this) )
 					return false;
 
 				if($property_data["is_primary"])

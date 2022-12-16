@@ -5,6 +5,7 @@ namespace Model\Model;
 use \PDO;
 use \PDOException;
 use \ReflectionClass;
+use \ReflectionProperty;
 
 use \Sabo\Sabo\Router;
 
@@ -382,7 +383,7 @@ abstract class AbstractModel
 				continue;
 
 			// check if is initialized
-			if(!(new \ReflectionProperty($this,$property_name))->isInitialized($this) )
+			if(!(new ReflectionProperty($this,$property_name))->isInitialized($this) )
 					return false;
 
 			// if the property is not initialized
@@ -459,7 +460,7 @@ abstract class AbstractModel
 			foreach($this->properties_data as $property_name => $property_data)
 			{
 				// check if is initialized
-				if(!(new \ReflectionProperty($this,$property_name))->isInitialized($this) )
+				if(!(new ReflectionProperty($this,$property_name))->isInitialized($this) )
 					return false;
 
 				if($property_data["is_primary"])

@@ -121,11 +121,19 @@ abstract class Route
 
 	private static function get_route_from(string $method,string $route,string $controller_class,string $method_name,string $route_name):array
 	{	
+		$route = preg_replace("#\/\/#","/",$route);
+
+		if(!str_starts_with($route,"/") )
+			$route = "/{$route}";
+
+		if(str_ends_with($route,"/") )
+			$route_data["route"] = substr($route,0,-1);
+
 		return [
 			"method" => $method,
 			"route_name" => $route_name,
 			"route" => $route,
-			"route_regex" => "\/?" . str_replace("?","\?",preg_replace("#\{[a-zA-Z\_]+\}#","(.+)",$route) ) . "\/?",
+			"route_regex" => str_replace("?","\?",preg_replace("#\{[a-zA-Z\_]+\}#","(.+)",$route) ) . "\/?",
 			"controller_class" => $controller_class,
 			"method_name" => $method_name
 		];

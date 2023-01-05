@@ -126,8 +126,10 @@ abstract class Route
 		if(!str_starts_with($route,"/") )
 			$route = "/{$route}";
 
-		if(str_ends_with($route,"/") )
-			$route_data["route"] = substr($route,0,-1);
+		while(str_ends_with($route,"/") )
+			$route = substr($route,0,- 1);
+
+		$route_data["route"] = $route;
 
 		return [
 			"method" => $method,

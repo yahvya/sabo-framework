@@ -4,6 +4,7 @@ namespace Controller\Controller;
 
 use \Sabo\Custom\RouteCustomExtensions;
 use \Sabo\Custom\AssetCustomExtension;
+use \Sabo\Custom\JsRouteCustomExtensions;
 
 use \Twig\Loader\FilesystemLoader;
 
@@ -23,6 +24,7 @@ abstract class AbstractController
 	private Environment $twig_environment;
 
 	private RouteCustomExtensions $route_custom_extension;
+	private JsRouteCustomExtensions $js_route_custom_extension;
 
 	public function __construct(array $routes_names,bool $debug_mode,bool $from_router = true)
 	{
@@ -35,12 +37,14 @@ abstract class AbstractController
             "cache" => $debug_mode ? false : $this->cache_path
         ]);     
         $this->route_custom_extension = new RouteCustomExtensions($routes_names,$debug_mode);
+		$this->js_route_custom_extension = new JsRouteCustomExtensions($routes_names,$debug_mode,$this->route_custom_extension);
         $this->twig_environment->addExtension($this->route_custom_extension);
+		$this->twig_environment->addExtension($this->js_route_custom_extension);
         $this->debug_mode = $debug_mode;
 
         if($from_router)
         	$this->manage_flash_datas();
-	}	
+	}		
 
 	protected function render(string $file,array $view_data = []):void
 	{

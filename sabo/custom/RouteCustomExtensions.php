@@ -29,7 +29,7 @@ class RouteCustomExtensions extends AbstractExtension
 
 	public function get_route_from(string $route_name,array $replaces = []):string
 	{
-		$route = !empty($this->routes_list[$route_name]) ? $this->routes_list[$route_name] : "";
+		$route = isset($this->routes_list[$route_name]) ? $this->routes_list[$route_name] : "";
 
 		foreach($replaces as $to_replace => $replace)
 			$route = str_replace("{{$to_replace}}",$replace,$route);
